@@ -1,0 +1,6 @@
+{
+  // Recommended for tools/serial_plotter.py's live plot, which renders
+  // inside VS Code's Python Interactive Window rather than a separate
+  // serial-specific extension -- see tools/README.md.
+  "recommendations": ["ms-python.python"]
+}
