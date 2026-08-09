@@ -204,9 +204,16 @@ Each strip is independent; strip 1 = participant 1's heartrate, strip 2 = partic
   their original cables, D6 produced no vibration and D13 worked; after swapping which
   driver was connected to which cable, the fault followed the swap (D6 worked, D13 didn't).
   This rules out the Arduino pins, the cables, and the code — it's the specific driver/motor
-  unit that was originally on D6. Not yet narrowed down to "driver chip" vs. "motor" — needs
-  a multimeter or direct-battery test on the motor. Do not assume both motor channels work
-  when testing motor-related code; verify with `HardwareTest` first.
+  unit that was originally on D6. **Narrowed further**: the D6 motor spins fine on a direct
+  AA battery (motor itself is good), and the driver chip successfully drives the other motor
+  pack (chip is alive in general) — so the fault is specifically the D6 channel's output
+  stage on that driver board, or the wiring between that channel and the motor. Prime
+  suspect per the still-open IN2 question below: IN2 floating/miswired on that channel
+  instead of tied to GND would produce exactly this symptom (PWM going out on IN1 with no
+  effect). Next diagnostic step: probe that channel's OUT1/OUT2 directly (not at the motor)
+  while running `HardwareTest`'s D6 motor test, and check IN2-to-GND continuity. Do not
+  assume both motor channels work when testing motor-related code; verify with
+  `HardwareTest` first.
 - Occasional single-sample amplitude outliers (motion artifact or a bad I2C read) can spike
   `positivePeak` well above the real signal. Since the adaptive threshold's target is
   `positivePeak / 2`, an unclamped outlier inflates `threshold` several times over in one
