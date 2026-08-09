@@ -1,0 +1,71 @@
+MODES — The Interface (theinterface.ino)
+==========================================
+
+The Interface has four system-wide "modes", separate from the 10 LED
+patterns. A mode decides what drives the felt/visual pulse (real
+heartbeats vs. one of three artificial rates); the LED pattern (Red-Blue,
+Chase, Rainbow Wave, Lava, Eclipse, Rings, Plant, Slow Rainbow, Sparkle,
+Aurora) keeps cycling independently underneath whichever mode is active.
+
+Switching modes
+----------------
+LED index 0 on both strips is reserved as a status light showing the
+current mode (off / blue / yellow / green below). It is always shown at
+full brightness, regardless of the A2 potentiometer's intensity setting,
+so it stays visible even with the brightness turned all the way down.
+
+Press the A0 button three times within 2 seconds to advance to the next
+mode (wraps back to Default after Regular). A single press still cycles
+the LED pattern immediately as always; a confirmed triple-click undoes
+those three pattern changes (restores whatever pattern was showing before
+the triple-click started) and switches mode instead — so triple-clicking
+never leaves the LED pattern changed, only the mode.
+
+The four modes
+----------------
+
+1. DEFAULT (LED 0: off / no color)
+   The mode the device boots into.
+   Does not use the heart sensors.
+   For the first 1 minute: both participants get an artificial heartbeat
+   of 6 BPM, same rate as Breath Entrainment.
+   After that 1 minute: each participant's own heartbeat rate starts
+   nudging 1-2 BPM closer to 60 BPM every time it beats (not on a fixed
+   timer) -- so as the rate climbs, beats land closer together and the
+   nudges land a little more often too. The two participants are NOT
+   kept in sync during this ramp -- each one eases up independently on
+   its own schedule, so they can end up beating at slightly different
+   moments even though both are heading toward the same 60 BPM ceiling.
+
+2. BREATH ENTRAINMENT (LED 0: blue)
+   Does not use the heart sensors.
+   Both participants get a fixed artificial heartbeat of 6 BPM (one
+   pulse every 10 seconds), perfectly synchronized with each other.
+   Meant to gently draw breathing/heart rate down to a very slow,
+   calming pace.
+
+3. FALLBACK (LED 0: yellow)
+   Does not use the heart sensors.
+   Both participants get a fixed artificial heartbeat of 60 BPM (one
+   pulse per second), perfectly synchronized with each other -- a
+   common resting-heartrate pace.
+
+4. REGULAR (LED 0: green)
+   Uses the real heart sensors. This is the original behavior the
+   sketch had before modes existed: each participant's motor and LED
+   strip respond to their own actual detected heartbeat (BPM, beat
+   timing, etc. all come from the MAX30102 sensors as normal).
+
+Notes
+-----
+- In every mode except Regular, the sketch does not read the heart rate
+  sensors at all (no I2C traffic to them) -- an artificial clock drives
+  the same motor-pulse and LED-beat-reaction code a real detected beat
+  would, so the felt/visual pulse looks and feels the same either way.
+- Switching modes (via triple-click) always resets the artificial clock
+  and clears any pending pulse, so leaving/entering a mode never leaves a
+  stale beat behind. Default's ramp also restarts from 6 BPM every time
+  you switch back into it.
+- The A2 potentiometer's overall intensity (motor strength + LED
+  brightness) applies the same way in every mode; only LED 0's mode
+  indicator ignores it.
